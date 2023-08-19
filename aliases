@@ -1,0 +1,26 @@
+#!/bin/bash
+# Usage: Edit ~/.bashrc and add "source /path/to/aliases" at end
+
+# Make removing, copying and moving files safer
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Show disk space occupied by the folders, and sort by the size
+alias duhc='du -hc --max-depth=1 | sort -h'
+
+# Better directory listing
+alias ll='ls -lha'
+
+# Copy to clipboard
+alias copy='xclip -sel clip'
+
+# Misc. shortcuts
+alias rxn='npx react-native'
+alias rxn-a='rxn run-android'
+alias python='python3'
+alias pip='python -m pip'
+alias a2restart='sudo service apache2 restart'
+alias hosts='less /etc/hosts'
+alias pa='php artisan'%
+alias x='exit'

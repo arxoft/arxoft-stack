@@ -1,0 +1,116 @@
+#!/bin/bash
+set -e
+
+read -p "Enter your username: " N
+
+apt update
+
+# General
+apt install -y software-properties-common xdotool flameshot htop xclip npm expect cheese rig chrome-gnome-shell pwgen nautilus-dropbox nemo virtualbox-qt rar unrar vlc composer  openssh-server kolourpaint filezilla gedit gimp git meld gnupg python3
+
+# Apache, PHP, MySQL
+apt install -y apache2 mariadb-server mariadb-client php libapache2-mod-php
+service apache2 start
+
+mkdir -p /home/$N/www
+echo "<?php phpinfo();" > /home/$N/www/index.php
+
+if [ ! -f /etc/apache2/apache2.conf.default ]; then
+    cp /etc/apache2/apache2.conf /etc/apache2/apache2.conf.default
+fi
+echo 'Include /etc/phpmyadmin/apache.conf' >> /etc/apache2/apache2.conf
+sed -i "s|<Directory /var/www/>|<Directory /home/$N/www/>|g" /etc/apache2/apache2.conf
+sed -i "172s|AllowOverride None|AllowOverride All|g" /etc/apache2/apache2.conf
+
+if [ ! -f /etc/apache2/sites-available/000-default.conf.default ]; then
+    cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf.default
+fi
+sed -i "s|DocumentRoot /var/www/html|DocumentRoot /home/$N/www|g" /etc/apache2/sites-available/000-default.conf
+
+if [ ! -f /etc/apache2/envvars.default ]; then
+    cp /etc/apache2/envvars /etc/apache2/envvars.default
+fi
+sed -i "s/www-data/$N/g" /etc/apache2/envvars
+
+PHP_VERSION=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
+
+if [ ! -f /etc/php/$PHP_VERSION/apache2/php.ini.default ]; then
+    cp /etc/php/$PHP_VERSION/apache2/php.ini /etc/php/$PHP_VERSION/apache2/php.ini.default
+fi
+sed -i "s/display_errors = Off/display_errors = On/g" /etc/php/$PHP_VERSION/apache2/php.ini
+sed -i "s/post_max_size = 500M/post_max_size = 8000M/g" /etc/php/$PHP_VERSION/apache2/php.ini
+sed -i "s/upload_max_filesize = 500M/upload_max_filesize = 8000M/g" /etc/php/$PHP_VERSION/apache2/php.ini
+
+# mysql -u root -p'root' -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+mysql_secure_installation
+
+# phpMyAdmin
+apt install -y phpmyadmin  
+# sudo dpkg-reconfigure phpmyadmin
+
+# Fix: Do not show those lots of PHP Errors in phpmyadmin
+if [ ! -f /etc/phpmyadmin/config.inc.php.default ]; then
+    cp /etc/phpmyadmin/config.inc.php /etc/phpmyadmin/config.inc.php.default
+fi
+echo "\$cfg['SendErrorReports'] = 'never';" >> /etc/phpmyadmin/config.inc.php
+echo "\$cfg['MaxNavigationItems'] = 500;" >> /etc/phpmyadmin/config.inc.php
+
+# Fix: Authentication plugin 'caching_sha2_password' cannot be loaded
+# if [ ! -f /etc/mysql/mysql.conf.d/mysqld.cnf.default ]; then
+#     cp /etc/mysql/mysql.conf.d/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf.default
+# fi
+# echo "default_authentication_plugin=mysql_native_password" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+
+
+chown $N:$N -R /home/$N/www
+service apache2 restart
+
+# PHP 5.6
+echo
+echo "PHP $PHP_VERISON, Apache, MySQL, PHPMyAdmin have been installed."
+read -p "Do you want to install PHP 5.6 instead? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    # PHP 5.6 (Follow same for more versions if needed)
+    apt install -y php5.6
+    apt install -y php5.6-cli php5.6-xml php5.6-mysql
+    update-alternatives --set php /usr/bin/php5.6
+    a2dismod php$PHP_VERSION
+    a2enmod php5.6
+    systemctl restart apache2
+    echo "Done. PHP5.6 installed and activated. Try: http://localhost"
+fi
+
+echo
+read -p "Install Python, NodeJS and Yarn? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    # Python
+    apt install -y python3-pip
+    alias python='python3'
+    alias pip='pip3'
+    pip install requests yfinance pandas streamlit
+   
+    # NodeJS
+    # apt-get install -y curl
+    # curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    # apt-get install -y nodejs
+    # npm install npm@latest -g
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+    source ~/.zshrc # (or .bashrc)
+    nvm ls-remote
+    nvm install lts/hydrogen
+
+
+    # yarn
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+    apt-get update
+    apt-get install -y yarn
+fi
+
+
+read -p "All Done. Hit anything on <enter> key to exit. " X
+exit 0
