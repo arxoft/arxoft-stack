@@ -6,7 +6,7 @@ read -p "Enter your username: " N
 apt update
 
 # General
-apt install -y software-properties-common xdotool flameshot htop xclip npm expect cheese rig chrome-gnome-shell pwgen nautilus-dropbox nemo virtualbox-qt rar unrar vlc composer  openssh-server kolourpaint filezilla gedit gimp git meld gnupg python3
+apt install -y software-properties-common xdotool gnome-characters flameshot htop xclip npm expect cheese rig chrome-gnome-shell pwgen nautilus-dropbox nemo virtualbox-qt rar unrar vlc composer  openssh-server kolourpaint filezilla gedit gimp git meld gnupg python3
 
 # Apache, PHP, MySQL
 apt install -y apache2 mariadb-server mariadb-client php libapache2-mod-php
