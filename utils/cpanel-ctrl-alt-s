@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Bind this command to Ctrl+Alt+S shortcut key to save the file being edited on the cPanel editor.
+
+# Set the x and y coordinates for the mouse click
+# xdotool getmouselocation
+x_coord=1790
+y_coord=170
+
+mouse_info=$(xdotool getmouselocation)
+prev_x=$(echo $mouse_info | awk '{print $1}' | cut -d':' -f2)
+prev_y=$(echo $mouse_info | awk '{print $2}' | cut -d':' -f2)
+
+# Use xdotool to move the mouse to the specified coordinates and click
+xdotool mousemove $x_coord $y_coord click 1
+
+xdotool mousemove $prev_x $prev_y

@@ -1,0 +1,161 @@
+#!/bin/bash 
+set -e 
+clear
+
+# DISPLAY=`loginctl show-session $(loginctl -a show-user asif | grep Display | sed 's/Display.//g') | grep Display`
+# export $DISPLAY
+
+N0="ﷺ"
+N1=`date +%Y%m%d%H%M%S`                # "20180804161500"
+N2=`date +%Y%m%d\.%a\.%H%M%S`          # "20180804.SAT.161500"
+N3=`date +%Y\-%m\-%d\ %H\:%M\:%S`      # "2018-08-04 16:15:00"
+N4=`date +%c`                          # "Sat 04 Aug 2018 11:59 AM"
+N5=`date +%U`                          # "53, Current week number of year"
+N6=`date --date="yesterday" +%Y\-%m\-%d`      # "2018-08-03"
+N9=`lorem`
+N10=`faker name`
+
+P=`pwgen -c -n  -s 12`            # Random 14 char string
+MG=`date +%Y%m%d%H%M%S`@mailinator.com
+
+echo "Please select a date time format to copy to clipboard"
+echo ""
+echo "0. $N0"
+echo "1. $N1"
+echo "2. $N2"
+echo "3. $N3"
+echo "4. $N4"
+echo "5. $N5 (Week number of year)"
+echo "6. $N6 (Yesterday)"
+echo "7. $P (pwgen)"
+echo "8. $MG"
+echo "9. Lorem Ipsum"
+echo "10. Faker: Name"
+echo ""
+read -p "Enter your option: " N  
+
+
+case "$N" in 
+
+0)
+    echo ". $N0"
+    echo -n $N0 | xclip -sel clip
+    ;;
+
+1)  echo ". $N1"
+    echo -n $N1 | xclip -sel clip
+    ;;
+
+2)  echo ". $N2"
+    echo -n $N2 | xclip -sel clip
+    ;;
+
+3)  echo ". $N3"
+    echo -n $N3 | xclip -sel clip
+    ;;
+
+4)  echo ". $N4"
+    echo -n $N4 | xclip -sel clip
+    ;;
+
+5)  echo ". $N5"
+    echo -n $N5 | xclip -sel clip
+    ;;
+
+6) echo ". $N6"
+   echo -n $N6 | xclip -sel clicp
+   ;;
+
+7)  echo ". $P:"
+    echo -n $P | xclip -sel clip
+    ;;
+
+8)  echo ". $MG:"
+    echo -n $MG | xclip -sel clip
+    ;;
+
+9)  echo ". Lorem ipsum...:"
+    echo -n $N9 | xclip -sel clip
+    ;;
+
+10)  echo ". Faker: Name."
+    echo -n $N10 | xclip -sel clip
+    ;;
+
+esac
+
+echo ""
+echo "You have 10 secs. Paste it. " 
+echo ""
+
+C=9 
+while [ $C -ge 0 ]
+do
+	echo -n -e "\b$C"
+	sleep 1
+    (( C-- ))
+done
+echo ""
+echo ""
+
+
+
+
+
+# ### Create a launcher, but don't "Run in terminal"
+# #date +%s | xclip -sel clip
+# date +%a\ %Y\-%m\-%d\ %H\:%M\:%S | xclip -sel clip
+
+# #       %%     a literal %
+# #       %a     locale's abbreviated weekday name (e.g., Sun)
+# #       %A     locale's full weekday name (e.g., Sunday)
+# #       %b     locale's abbreviated month name (e.g., Jan)
+# #       %B     locale's full month name (e.g., January)
+# #       %c     locale's date and time (e.g., Thu Mar  3 23:05:25 2005)
+# #       %C     century; like %Y, except omit last two digits (e.g., 20)
+# #       %d     day of month (e.g., 01)
+# #       %D     date; same as %m/%d/%y
+# #       %e     day of month, space padded; same as %_d
+# #       %F     full date; same as %Y-%m-%d
+# #       %g     last two digits of year of ISO week number (see %G)
+# #       %G     year of ISO week number (see %V); normally useful only with %V
+# #       %h     same as %b
+# #       %H     hour (00..23)
+# #       %I     hour (01..12)
+# #       %j     day of year (001..366)
+# #       %k     hour, space padded ( 0..23); same as %_H
+# #       %l     hour, space padded ( 1..12); same as %_I
+# #       %m     month (01..12)
+# #       %M     minute (00..59)
+# #       %n     a newline
+# #       %N     nanoseconds (000000000..999999999)
+# #       %p     locale's equivalent of either AM or PM; blank if not known
+# #       %P     like %p, but lower case
+# #       %r     locale's 12-hour clock time (e.g., 11:11:04 PM)
+# #       %R     24-hour hour and minute; same as %H:%M
+# #       %s     seconds since 1970-01-01 00:00:00 UTC
+# #       %S     second (00..60)
+# #       %t     a tab
+# #       %T     time; same as %H:%M:%S
+# #       %u     day of week (1..7); 1 is Monday
+# #       %U     week number of year, with Sunday as first day of week (00..53)
+# #       %V     ISO week number, with Monday as first day of week (01..53)
+# #       %w     day of week (0..6); 0 is Sunday
+# #       %W     week number of year, with Monday as first day of week (00..53)
+# #       %x     locale's date representation (e.g., 12/31/99)
+# #       %X     locale's time representation (e.g., 23:13:48)
+# #       %y     last two digits of year (00..99)
+# #       %Y     year
+# #       %z     +hhmm numeric time zone (e.g., -0400)
+# #       %:z    +hh:mm numeric time zone (e.g., -04:00)
+# #       %::z   +hh:mm:ss numeric time zone (e.g., -04:00:00)
+# #       %:::z  numeric time zone with : to necessary precision (e.g., -04, +05:30)
+# #       %Z     alphabetic time zone abbreviation (e.g., EDT)
+# #
+# #       By default, date pads numeric fields with zeroes.  The following optional flags may follow '%':
+# #       -      (hyphen) do not pad the field
+# #       _      (underscore) pad with spaces
+# #       0      (zero) pad with zeros
+# #       ^      use upper case if possible
+# #       #      use opposite case if possible
+

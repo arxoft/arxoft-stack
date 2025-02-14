@@ -1,0 +1,26 @@
+#!/bin/bash
+linecount=0
+processes=$(echo "show processlist" | mysql -u pakindol_user -pl4zMxDOha4x6)
+oldIfs=$IFS
+IFS='
+'
+echo "Checking for slow MySQL queries..."
+for line in $processes
+do
+    if [ "$linecount" -gt 0 ]
+        then
+            pid=$(echo "$line" | cut -f1)
+            length=$(echo "$line" | cut -f6)
+            query=$(echo "$line" | cut -f8)
+            #Id User    Host    db  Command Time    State   Info
+            if [ "$length" -gt 3 ]
+                then
+                    #echo "$pid = $length"
+                    echo "WARNING:  Killing query with pid=$pid with total execution time of $length seconds! (query=$query)" >> killedSlowQueries.log
+                    killoutput=$(echo "kill $pid" | mysql -u pakindol_user -pl4zMxDOha4x6)
+                    echo "Result of killing $pid:  $killoutput"
+            fi
+    fi
+    linecount=`expr $linecount + 1`
+done
+IFS=$oldIfs

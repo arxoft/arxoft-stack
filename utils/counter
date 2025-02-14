@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Use this script to generate incremental IDs against a category.
+
+# Icon file: /usr/share/icons/Mint-Y/apps/24/chrome-bebigdkelppomhhjaaianniiifjbgocn-Default.png
+
+PROJECT_ROOT="$(dirname "$0")"
+
+# File to store the counts for each category
+COUNT_FILE="$PROJECT_ROOT/counts"
+
+echo
+echo "Counts: $(realpath "$COUNT_FILE")"
+cat $COUNT_FILE
+echo
+
+# Check if the count file exists, if not, create it
+if [[ ! -f "$COUNT_FILE" ]]; then
+  touch "$COUNT_FILE"
+fi
+
+# Check if category is provided as an argument, else prompt the user
+if [[ -z "$1" ]]; then
+  # Prompt for a category input
+  echo -n "Enter a category: "
+  read CATEGORY
+else
+  # Use the provided category argument
+  CATEGORY=$1
+fi
+
+# Validate that at least one character was entered
+if [[ -z "$CATEGORY" ]]; then
+  echo "Error: Please enter a valid category."
+  exit 1
+fi
+
+# Convert category to uppercase (to ensure consistency)
+CATEGORY=${CATEGORY^^}
+
+# Check if the category already exists in the file
+CURRENT_COUNT=$(grep -E "^$CATEGORY:" "$COUNT_FILE" | cut -d ':' -f 2)
+
+# If the category does not exist, initialize it with 0000
+if [[ -z "$CURRENT_COUNT" ]]; then
+  CURRENT_COUNT="0000"
+  echo "$CATEGORY:$CURRENT_COUNT" >> "$COUNT_FILE"
+fi
+
+# Increment the count and format it to 5 digits (zero-padded)
+NEW_COUNT=$(printf "%05d" $((10#$CURRENT_COUNT + 1)))
+
+# Replace the count for the category in the file
+sed -i "s/^$CATEGORY:[0-9]*$/$CATEGORY:$NEW_COUNT/" "$COUNT_FILE"
+
+# Create the final clipboard string by appending the uppercase category
+# Ensure the CLIPBOARD_STRING is 8 characters long
+if (( ${#CATEGORY} + ${#NEW_COUNT} >= 8 )); then
+  CLIPBOARD_STRING="${CATEGORY}${NEW_COUNT}"
+else
+  PADDING_LENGTH=$((8 - ${#CATEGORY} - ${#NEW_COUNT}))
+  PADDING=$(printf '0%.0s' $(seq 1 $PADDING_LENGTH))
+  CLIPBOARD_STRING="${CATEGORY}${PADDING}${NEW_COUNT}"
+fi
+
+# Copy the final string to the clipboard
+# Using xclip for Linux, adjust for macOS or other OSes
+if command -v xclip &> /dev/null; then
+  echo -n "$CLIPBOARD_STRING" | xclip -selection clipboard
+elif command -v pbcopy &> /dev/null; then
+  echo -n "$CLIPBOARD_STRING" | pbcopy
+else
+  echo "Clipboard command not found. Install xclip (Linux) or use pbcopy (macOS)."
+fi
+
+# Output the new count for the category
+echo -e "Next count for category '$CATEGORY': \033[1;33m$CLIPBOARD_STRING\033[0m (copied to clipboard)"
+
+echo
+echo "Exiting in 5 seconds..."
+sleep 5
+

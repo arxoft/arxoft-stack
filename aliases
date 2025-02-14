@@ -1,26 +1,39 @@
 #!/bin/bash
-# Usage: Edit ~/.bashrc and add "source /path/to/aliases" at end
 
-# Make removing, copying and moving files safer
+# Include this file in ~/.bashrc as:
+# soruce /path/to/aliases
+
+branch() {
+    # Check if we are in a Git repository
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        # Extract the current branch name using git symbolic-ref
+        git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --exact-match 2>/dev/null
+    fi
+}
+
+git_branch() {
+    branch=$(branch)
+    if [ ! -z "$branch" ]; then
+        echo "($branch)"
+        # echo -e "\e[1;5m($branch)\e[0m"
+    fi
+}
+
+alias x='exit'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
-
-# Show disk space occupied by the folders, and sort by the size
 alias duhc='du -hc --max-depth=1 | sort -h'
-
-# Better directory listing
 alias ll='ls -lha'
-
-# Copy to clipboard
-alias copy='xclip -sel clip'
-
-# Misc. shortcuts
-alias rxn='npx react-native'
-alias rxn-a='rxn run-android'
 alias python='python3'
 alias pip='python -m pip'
-alias a2restart='sudo service apache2 restart'
-alias hosts='less /etc/hosts'
-alias pa='php artisan'%
-alias x='exit'
+alias copy='xclip -sel clip'
+alias gedit='gedit --new-window'
+alias grephp='grep -rni --include="*.php"'
+alias grepcss='grep -rni --include="*.css"'
+alias grepjs='grep -rni --include="*.js"'
+alias grep100='grep -rni --color=always -o ".\{0,100\}$1.\{0,100\}"'
+alias subl='subl -n'
+
+PS1='\n\u \[\e[1;33m\][\w]\[\e[0m\] $(git_branch)\n\$ '
+

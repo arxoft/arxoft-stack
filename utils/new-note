@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+#D=`date +%Y%m%d\.%a\.%H%M%S`
+D=`date +%s`
+#F="note-$D.txt"
+F="$D.txt"
+cd ~/Dropbox
+mkdir -p notes
+cd notes
+find . -name '*.txt' -size 0 -delete
+touch $F
+subl --launch-or-new-window $F

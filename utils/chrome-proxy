@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+echo
+echo "Creating tunnel..."
+
+if lsof -i :9999 > /dev/null; then
+    echo "Tunnel already created"
+else
+    ssh -f -D9999 -i "keypair.pem" ec2-user@$1 -N
+    sleep 10
+fi
+
+echo
+echo "Verifying connection..."
+ps aux | grep ssh | grep keypair
+
+
+echo
+echo "Starting proxy..."
+D="/home/$USER/.config/chromeprfiles/proxy-$2"
+rm -rf $D
+mkdir -p $D
+/usr/bin/google-chrome-stable  --proxy-server="socks5://localhost:9999" --user-data-dir=/home/$USER/.config/chrome-profiles/userdir.CYBERGHOST3 --profile-directory="Default"
+
+
+### Create and SSH Tunnel first
+### Run: ./chrome-tunnel 123.456.789
+### Make sure machine and keypair.pem is ready!
+

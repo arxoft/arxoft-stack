@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+NAME=`date +%s`
+if [ -n "$1" ]; then
+	NAME=$1
+fi
+
+D="/home/$USER/.config/chrome-profiles"
+#find $D/ -type d -name "userdir.*" -delete
+mkdir -p $D/userdir.$NAME
+/usr/bin/google-chrome-stable --user-data-dir=$D/userdir.$NAME --profile-directory="Default" --new-window $2
