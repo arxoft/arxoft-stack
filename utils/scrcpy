@@ -1,0 +1,26 @@
+#!/bin/bash
+
+### Registering a device
+### ====================
+### Connect the device (make sure USB debugging is already ON)
+### lsusb and grab the first 4 digits from the your device
+### Ex: from Bus 001 Device 003: ID 22b8:2e76 Motorola PCS We need 22b8.
+### Replace #### in following command with these 4 digits and run it.
+### echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="####", MODE="0666", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/51-android-usb.rules
+### Plug out and in the device
+### See adb devices output to make sure it's there now.
+
+### How to run scrcpy wirelessly?
+### =============================
+### Here are the steps:
+### 1. Connect the device to the same Wi-Fi as your computer
+### 2. Get your device IP address (in Settings → About phone → Status)
+### 3. Enable adb over TCP/IP on your device: adb tcpip 5555
+### 4. Connect to your device: adb connect DEVICE_IP:5555 (replace DEVICE_IP)
+### 5. Unplug your device
+### 6. Run scrcpy as usual
+### 
+### To switch back to USB mode: adb usb.
+### 
+
+scrcpy --hid-keyboard --show-touches

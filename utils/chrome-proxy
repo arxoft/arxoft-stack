@@ -1,30 +1,43 @@
 #!/bin/bash
 set -e
 
-echo
-echo "Creating tunnel..."
+if [ -z "$1" ]; then
+    echo "Usage: $0 <EC2-IP> [profile-name]"
+    exit 1
+fi
 
-if lsof -i :9999 > /dev/null; then
-    echo "Tunnel already created"
+EC2_IP="$1"
+PROFILE_NAME="${2:-default}"
+
+TUNNEL_PORT=9999
+SSH_KEY="keypair.pem"
+CHROME_PROFILE_DIR="$HOME/.config/chrome-profiles/proxy-$PROFILE_NAME"
+
+if lsof -i :$TUNNEL_PORT > /dev/null 2>&1; then
+    echo "Tunnel already established."
 else
-    ssh -f -D9999 -i "keypair.pem" ec2-user@$1 -N
-    sleep 10
+    echo "Creating SSH tunnel to $EC2_IP..."
+    ssh -f -D $TUNNEL_PORT -i "$SSH_KEY" ec2-user@"$EC2_IP" -N
+    sleep 5
+    echo "Tunnel created."
 fi
 
 echo
-echo "Verifying connection..."
-ps aux | grep ssh | grep keypair
+if pgrep -af "ssh.*$SSH_KEY" > /dev/null; then
+    echo "Tunnel is running."
+else
+    echo "Tunnel verification failed!"
+    exit 1
+fi
 
+rm -rf "$CHROME_PROFILE_DIR"
+mkdir -p "$CHROME_PROFILE_DIR"
 
-echo
-echo "Starting proxy..."
-D="/home/$USER/.config/chromeprfiles/proxy-$2"
-rm -rf $D
-mkdir -p $D
-/usr/bin/google-chrome-stable  --proxy-server="socks5://localhost:9999" --user-data-dir=/home/$USER/.config/chrome-profiles/userdir.CYBERGHOST3 --profile-directory="Default"
+/usr/bin/google-chrome-stable \
+    --proxy-server="socks5://localhost:$TUNNEL_PORT" \
+    --user-data-dir="$CHROME_PROFILE_DIR" \
+    --profile-directory="Default"
 
+echo "Chrome started with SOCKS5 proxy."
 
-### Create and SSH Tunnel first
-### Run: ./chrome-tunnel 123.456.789
-### Make sure machine and keypair.pem is ready!
 

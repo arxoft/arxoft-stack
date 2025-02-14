@@ -1,0 +1,3 @@
+#!/bin/bash
+# sudo strace -f $(pidof php-fpm | sed 's/\([0-9]*\)/\-p \1/g')
+sudo strace -f $(pidof $1 | sed 's/\([0-9]*\)/\-p \1/g')

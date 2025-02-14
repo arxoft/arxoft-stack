@@ -1,12 +1,24 @@
 #!/bin/bash
-set -e
-#D=`date +%Y%m%d\.%a\.%H%M%S`
-D=`date +%s`
-#F="note-$D.txt"
-F="$D.txt"
-cd ~/Dropbox
-mkdir -p notes
-cd notes
-find . -name '*.txt' -size 0 -delete
-touch $F
-subl --launch-or-new-window $F
+set -e  # Exit on any error
+
+# Define variables
+NOTES_DIR=~/Notes
+TIMESTAMP=$(date +%s)
+FILE="$NOTES_DIR/$TIMESTAMP.txt"
+
+# Ensure the notes directory exists
+mkdir -p "$NOTES_DIR" ||:
+
+# Remove empty text files in the notes directory
+find "$NOTES_DIR" -name '*.txt' -size 0 -delete
+
+# Create a new note
+touch "$FILE"
+
+# Open the file in Sublime Text, if installed
+if command -v subl &>/dev/null; then
+    subl --launch-or-new-window "$FILE"
+else
+    echo "Sublime Text (subl) not found. File created at: $FILE"
+fi
+
